@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.BdMaterialVMapper">
+  <resultMap id="BaseResultMap" type="com.entity.BdMaterialV">
+    <id column="PK_SOURCE" jdbcType="CHAR" property="pkSource" />
+    <result column="CODE" jdbcType="VARCHAR" property="code" />
+    <result column="CREATIONTIME" jdbcType="CHAR" property="creationtime" />
+    <result column="CREATOR" jdbcType="VARCHAR" property="creator" />
+    <result column="DATAORIGINFLAG" jdbcType="DECIMAL" property="dataoriginflag" />
+    <result column="DISCOUNTFLAG" jdbcType="CHAR" property="discountflag" />
+    <result column="DR" jdbcType="DECIMAL" property="dr" />
+    <result column="ELECTRONICSALE" jdbcType="CHAR" property="electronicsale" />
+    <result column="ENABLESTATE" jdbcType="DECIMAL" property="enablestate" />
+    <result column="FEE" jdbcType="CHAR" property="fee" />
+    <result column="GRAPHID" jdbcType="VARCHAR" property="graphid" />
+    <result column="INTOLERANCE" jdbcType="DECIMAL" property="intolerance" />
+    <result column="ISELECTRANS" jdbcType="CHAR" property="iselectrans" />
+    <result column="MATERIALBARCODE" jdbcType="VARCHAR" property="materialbarcode" />
+    <result column="MATERIALMGT" jdbcType="DECIMAL" property="materialmgt" />
+    <result column="MATERIALMNECODE" jdbcType="VARCHAR" property="materialmnecode" />
+    <result column="MATERIALSHORTNAME" jdbcType="VARCHAR" property="materialshortname" />
+    <result column="MATERIALSPEC" jdbcType="VARCHAR" property="materialspec" />
+    <result column="MATERIALTYPE" jdbcType="VARCHAR" property="materialtype" />
+    <result column="MEMO" jdbcType="VARCHAR" property="memo" />
+    <result column="MODIFIEDTIME" jdbcType="CHAR" property="modifiedtime" />
+    <result column="MODIFIER" jdbcType="VARCHAR" property="modifier" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="OUTCLOSELOWERLIMIT" jdbcType="DECIMAL" property="outcloselowerlimit" />
+    <result column="OUTTOLERANCE" jdbcType="DECIMAL" property="outtolerance" />
+    <result column="PK_BRAND" jdbcType="VARCHAR" property="pkBrand" />
+    <result column="PK_GOODSCODE" jdbcType="VARCHAR" property="pkGoodscode" />
+    <result column="PK_GROUP" jdbcType="CHAR" property="pkGroup" />
+    <result column="PK_MARASSTFRAME" jdbcType="VARCHAR" property="pkMarasstframe" />
+    <result column="PK_MARBASCLASS" jdbcType="CHAR" property="pkMarbasclass" />
+    <result column="PK_MATERIAL" jdbcType="CHAR" property="pkMaterial" />
+    <result column="PK_MATERIAL_PF" jdbcType="VARCHAR" property="pkMaterialPf" />
+    <result column="PK_MATTAXES" jdbcType="VARCHAR" property="pkMattaxes" />
+    <result column="PK_MEASDOC" jdbcType="CHAR" property="pkMeasdoc" />
+    <result column="PK_ORG" jdbcType="CHAR" property="pkOrg" />
+    <result column="PK_PRODLINE" jdbcType="VARCHAR" property="pkProdline" />
+    <result column="PK_TAXITEMS" jdbcType="VARCHAR" property="pkTaxitems" />
+    <result column="PRODAREA" jdbcType="VARCHAR" property="prodarea" />
+    <result column="PRODUCTFAMILY" jdbcType="CHAR" property="productfamily" />
+    <result column="PROLIFEPERIOD" jdbcType="DECIMAL" property="prolifeperiod" />
+    <result column="RETAIL" jdbcType="CHAR" property="retail" />
+    <result column="SETPARTSFLAG" jdbcType="CHAR" property="setpartsflag" />
+    <result column="STOREUNITNUM" jdbcType="DECIMAL" property="storeunitnum" />
+    <result column="TS" jdbcType="CHAR" property="ts" />
+    <result column="UNITHEIGHT" jdbcType="VARCHAR" property="unitheight" />
+    <result column="UNITLENGTH" jdbcType="VARCHAR" property="unitlength" />
+    <result column="UNITVOLUME" jdbcType="DECIMAL" property="unitvolume" />
+    <result column="UNITWEIGHT" jdbcType="DECIMAL" property="unitweight" />
+    <result column="UNITWIDTH" jdbcType="VARCHAR" property="unitwidth" />
+    <result column="VERSION" jdbcType="DECIMAL" property="version" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    PK_SOURCE, CODE, CREATIONTIME, CREATOR, DATAORIGINFLAG, DEF1, DEF10, DEF11, DEF12, 
+    DEF13, DEF14, DEF15, DEF16, DEF17, DEF18, DEF19, DEF2, DEF20, DEF3, DEF4, DEF5, DEF6, 
+    DEF7, DEF8, DEF9, DISCOUNTFLAG, DR, ELECTRONICSALE, ENABLESTATE, FEE, GRAPHID, INTOLERANCE, 
+    ISELECTRANS, MATERIALBARCODE, MATERIALMGT, MATERIALMNECODE, MATERIALSHORTNAME, MATERIALSPEC, 
+    MATERIALTYPE, MEMO, MODIFIEDTIME, MODIFIER, NAME, NAME2, NAME3, NAME4, NAME5, NAME6, 
+    OUTCLOSELOWERLIMIT, OUTTOLERANCE, PK_BRAND, PK_GOODSCODE, PK_GROUP, PK_MARASSTFRAME, 
+    PK_MARBASCLASS, PK_MATERIAL, PK_MATERIAL_PF, PK_MATTAXES, PK_MEASDOC, PK_ORG, PK_PRODLINE, 
+    PK_TAXITEMS, PRODAREA, PRODUCTFAMILY, PROLIFEPERIOD, RETAIL, SETPARTSFLAG, STOREUNITNUM, 
+    TS, UNITHEIGHT, UNITLENGTH, UNITVOLUME, UNITWEIGHT, UNITWIDTH, VERSION
+  </sql>
+  <select id="selectByPrimary" parameterType="com.entity.BdMaterialV" resultMap="BaseResultMap">
+   select v.code,
+       v.name
+  from bd_material_v v
+  where 1=1
+    <if test="code!=null">
+      and v.code = #{code,jdbcType=CHAR}
+    </if>
+    <if test="name!=null">
+      and name like #{name,jdbcType=CHAR}
+    </if>
+  </select>
+ 
+</mapper>

@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TreeGrid Lines - jQuery EasyUI Demo</title>
+<link rel="stylesheet" type="text/css" href="./css/easyui.css">
+<link rel="stylesheet" type="text/css" href="./css/icon.css">
+<link rel="stylesheet" type="text/css" href="./css/demo.css">
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script type="text/javascript" src="./js/jquery.easyui.min.js"></script>
+<script src="./js/lodash.min.js" type="text/javascript"></script>
+<script src="./js/backbone-min.js" type="text/javascript"></script>
+<script src="./js/joint.js" type="text/javascript"></script>
+<script src="./js/rappid.js" type="text/javascript"></script>
+<script src="./js/dataSource.js" type="text/javascript"></script>
+<style type="text/css">
+.a_btn {
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+	margin-right: 10px;
+}
+#tbl_top a{
+  width:60px;
+  margin-right:10px;
+}
+#tbl_top a img{
+  vertical-align: middle;
+  margin-bottom:2px;
+  margin-right:3px;
+}
+#tab{
+  text-align:center;
+  margin-bottom: 55px;
+}
+#tab button{
+width: 110px;
+    height: 45px;
+    border: none;
+    border-radius: 5px;
+    color: #0E2D5F;
+    font-weight: bold;
+    font-size: 15px;
+    
+}
+
+.data_button{
+    margin-top: 2rem;
+    float: right;
+}
+.data_button button{
+    width: 80px;
+    height: 35px;
+    border: none;
+    border-radius: 5px;
+    color: #000000;
+    /* font-weight: bold; */
+    font-size: 14px;
+    border-radius: 5px;
+    background-color: #F2F2F2;
+    margin-right: 1rem;
+    border: #CCCCCC 1px solid;
+}
+}
+</style>
+<script>
+//当前对象
+var data;
+var position_x;
+var editingId;
+var cdata;      //当前选中的数据
+window.onbeforeunload=function(e){  
+  　　var e = window.event||e; 
+  　　e.returnValue=("确定离开当前页面吗？");
+} 
+$(function(){
+	
+	function hideIframe(){
+		  $(".import").attr("style","display:none");//显示div
+		}
+	
+	  //单击保存
+    $('#tb').treegrid({
+		  onClickRow:function(index ,data){
+			  if (editingId != undefined){
+		          var t = $('#tb');
+		          t.treegrid('endEdit', editingId);
+		          editingId = undefined;
+		          var persons = 0;
+		          var rows = t.treegrid('getChildren');
+		          for(var i=0; i<rows.length; i++){
+		            var p = parseInt(rows[i].persons);
+		            if (!isNaN(p)){
+		              persons += p;
+		            }
+		          }
+		          /* t.treegrid('reloadFooter'); */
+		        }
+		   //将当前保存的数据添加到data
+		   addtodata();
+		  }
+	  })
+	  
+	  
+	  //双击修改
+	  $('#tb').treegrid({
+		  onDblClickRow:function(index,data){
+			  cdata = $('#tb').treegrid('getSelected');
+		    if (cdata){
+		    	editingId = cdata.id
+		      $('#tb').treegrid('beginEdit', editingId);
+		    }
+		  }
+    })
+	 
+	  
+	  
+	   position_x=localStorage.getItem("position_x");
+	   data=JSON.parse(localStorage.getItem("data"));
+	   $("#butGraph").click(function(){
+		   console.log(data);
+	       $("#tb").treegrid('reload');    //重新载入所有行
+	       console.log(data);
+	       window.location.href="index.html";
+	   })
+	   //重新加载
+	   get_data();
+	   localStorage.clear();
+	   
+	   $("#butGraph").click(function(){
+		   debugger;
+		   localStorage.clear();
+		   localStorage.setItem("resertdata",JSON.stringify(data) );
+		   localStorage.setItem("position_x",position_x);
+		   window.parent.hideIframe();
+		   window.parent.shield();
+		   window.location.href="index.html";
+		 })
+
+		 
+		 
+})
+
+
+  function show() {
+	   var html=
+	   "<a href='#' class='a_btn' onclick='add_data(this)'><img src='./css/icons/edit_add.png'></a>"+
+	   "<a href='#' class='a_btn' onclick='remove_data(this)'><img src='./css/icons/edit_remove.png'></a>"+
+	   "<a href='#' class='a_btn' onclick='search_data(this)'><img src='./css/icons/search.png'></a>";
+	   return html;
+  }
+  
+  function checkbox(value,row,index) {
+	     var html="<input type='checkbox' class='check' onclick='check(this)' id='"+row.id+"'>";
+	     return html;
+	}
+  
+  /**********复选框事件*************/
+  function check(obj){
+	  //当前选中的行
+	  var cur_row=$(obj).parent().parent().parent().attr('node-id');
+	  //判断当前是否有子节点
+	  var arr=$("#tb").treegrid('getChildren',cur_row);
+	  if($("#"+cur_row).is(':checked')){
+		  //选中状态
+		  $.each(arr,function(index,value){
+			 $("#"+value.id).prop("checked", 'checked');
+			});
+	  }else{
+		  //取消选中状态
+		  $.each(arr,function(index,value){
+			 $("#"+value.id).prop("checked", false);
+			});
+	  }
+  }
+  
+  
+  /*********新增事件**********/
+  function add_data(target){
+	  var node = $('#tb').treegrid('getSelected');
+	  //获取当前对象
+    var currentnode=findById(data,node.id);
+    var value=new Array('','','','1','','','','','','','','');
+    var currentid=currentnode.id;
+    
+	  if(node.children){
+		  if(node.children.length>0){
+			  var node_id=node.id+"_"+node.children.length;
+		      var id=node.id+"_"+(node.children.length+1);
+		      $('#tb').treegrid('insert', {
+		         after: node_id,
+		         data: {
+		            id: id
+		         }
+		      });
+		    //新增零件
+		    data=createDataNode(data,currentid,"#D7DBDE","part",value);
+		  }else{
+			  //新增零件
+			  data=createDataNode(data,currentid,"#D7DBDE","part",value);
+			  get_data();
+		  }
+	  }else{
+		  //新增零件
+		  data=createDataNode(data,currentid,"#D7DBDE","part",value);
+		  get_data();
+	  } 
+  }
+  
+  
+  /*********删除事件**********/
+  function remove_data(target){
+	  $.messager.confirm('提示', '确认删除?', function(r){
+	     if (r){
+	    	 //获取当前的对象
+	    	    var cur_row=$(target).parent().parent().parent().attr('node-id');
+	    	    //获取当前选中的行
+	    	    $('#tb').treegrid('remove', cur_row);
+	    	    data=$('#tb').treegrid('getData')[0];
+	    	    get_data();
+	     }
+	  });
+	}
+  
+  /*********删除事件（删除所有选中的）**********/
+  function delete_alldata(target){
+	 var str="";
+	 $.messager.confirm('提示', '确认删除？', function(r){
+	    if (r){
+	    	 //获取所有复选框选中的对象
+	        $.each($('input:checkbox:checked'),function(i){
+	          //获取所有被选中的值(当前行node-id的值)
+	           var cur_row=$(this).parent().parent().parent().attr('node-id');
+	           if(str.indexOf(cur_row)!=-1){
+	                return;
+	           }
+	           var arr=$("#tb").treegrid('getChildren',cur_row);
+	           for(var j=0;j<arr.length;j++){
+	             str=str+","+arr[j].id;
+	           }
+	           $('#tb').treegrid('remove', cur_row);
+	           //数据上删除当前节点
+	           data=$('#tb').treegrid('getData')[0];
+	        });
+	        get_data();
+	    }
+	 });
+  }
+  
+  /*********搜索事件**********/
+  function search_data(target){
+	//获取当前的对象
+	  var objbh=$(target).parent().parent().parent().children('td').eq(2).text();
+	 if(!objbh){
+		 alert("编号不能为空！");
+		 return ;
+	 }
+	  var objname=$(target).parent().parent().parent().children('td').eq(3).text();
+	  $.post("search.do",{"bh":objbh},
+	      function(obj){
+	        if(obj!=null){
+	          //默认取第一个值    查询的名称：data[0].name
+	           //查询到的名称
+	          $(target).parent().parent().parent().children('td').eq(3).find('div').text(obj[0].name);
+	          //原名称
+	          $(target).parent().parent().parent().children('td').eq(4).find('div').text(objname);
+	          
+	          
+	          //查询到的名称,本地测试数据
+	            //$(target).parent().parent().parent().children('td').eq(3).find('div').text('查询得到的数据');
+	            //原名称
+	            //$(target).parent().parent().parent().children('td').eq(4).find('div').text('数据');
+	          
+	          //将当前保存的数据添加到data
+	          var currentnode=findById(data,$(target).parent().parent().parent().children('td').eq(1).find('div').text());
+	          currentnode.value[1]=obj[0].name;        //名称
+	          currentnode.value[2]=objname;         //原名称
+	          currentnode.value1=obj[0].name;
+	          currentnode.value2=objname;
+	          
+	          
+	          //测试数据
+	          /* currentnode.value[1]='1111';        //名称
+	          currentnode.value[2]='数据';         //原名称
+	          currentnode.value1='1111';
+	          currentnode.value2='数据'; */
+	        }
+	   },"json")
+	}
+  
+  
+  
+  /************重新给定url***************/
+  function get_data(){
+	  //对应前台表格的json格式         var json=[{"id": 1,"jd": "C","size": "","date": "02/19/2010"}];
+	   //清楚之前的记录
+    clearIdAndLevel(data);
+    //重新生成id
+    resetIdAndLevel(data, data.pid, data.level, 1);
+	  var str=JSON.stringify(data);
+	  var aa="["+str+"]";
+	  console.log(JSON.parse(aa));
+	  $('#tb').treegrid('loadData',JSON.parse(aa));
+  }
+
+ //将当前保存的数据添加到data
+   function addtodata(){
+	 //当前data中对应的对象
+	   var currentnode=findById(data,cdata.id);
+	   //将当前修改的值保存到数据中（value数组值）
+	   var arr=[cdata.value0,cdata.value1,cdata.value2,cdata.value3+"",cdata.value4+"",cdata.value5,cdata.value6,cdata.value7,cdata.value8,cdata.value9,cdata.value10,cdata.value11];
+	   currentnode.value=arr;
+	   currentnode.value0=cdata.value0;
+	   currentnode.value1=cdata.value1;
+	   currentnode.value2=cdata.value2;
+	   currentnode.value3=cdata.value3+"";
+	   currentnode.value4=cdata.value4+"";
+	   currentnode.value5=cdata.value5;
+	   currentnode.value6=cdata.value6;
+	   currentnode.value7=cdata.value7;
+	   currentnode.value8=cdata.value8;
+	   currentnode.value9=cdata.value9;
+	   currentnode.value8=cdata.value10;
+	   currentnode.value9=cdata.value11;
+   }
+  
+ 
+   
+   /*********复制事件********复制存在问题，需要改善**/
+   function copy_data(){
+	   debugger;
+	   //存储复制的数据
+	   var copydata=new Array();
+	   //当前选中的行
+    var node = $('#tb').treegrid('getSelected');
+    //复选框选中的个数
+    var count=$("input[type='checkbox']:checked").length;
+    var arr;
+    var firstdata;
+    var copy=true;
+    //获取所有选中的复选框
+    $.each($('input:checkbox:checked'),function(i){
+    	debugger;
+          //获取所有被选中的值(当前行node-id的值)
+           var cur_row=$(this).parent().parent().parent().attr('node-id');
+           if(i==0){
+               firstdata=findById(data,cur_row);
+               console.log(firstdata.id);
+           }
+          //判断当前节点是否有子节点
+          arr=findById(data,cur_row);
+          if(arr.children){
+        	  if(arr.children.length>0){
+        		  if(cur_row.indexOf(firstdata.id)==-1){
+        			  copy=false;
+        			  $.messager.alert('错误提示','不支持当前节点类型的复制！','error');
+        			  return false;
+        		  }
+        	  }else{
+        		//无节点  取到当前元素添加进
+        		  if(firstdata.children.length==0){
+                 var cnode=findById(data,cur_row);
+                 copydata.push(cnode);
+              }
+        	  }
+          }else{
+        	  //无节点  取到当前元素添加进
+        	  if(firstdata.children){
+        		  if(firstdata.children.length==0){
+        			  var cnode=findById(data,cur_row);
+        	      copydata.push(cnode);
+        		  }else{
+        			  copy=false;
+        			  $.messager.alert('错误提示','不支持当前节点类型的复制！','error');
+                return false;
+        		  }
+        	  }else{
+        		  var cnode=findById(data,cur_row);
+              copydata.push(cnode);
+        	  }
+          }
+    });
+    if(copy){
+    	if(firstdata.children.length>0){
+    	      localStorage.setItem("copydata1",JSON.stringify(node) );
+    	}
+    	localStorage.setItem("copydata",JSON.stringify(copydata) );
+    }
+    
+ }
+ 
+   
+   /*********粘贴事件**********/
+   function paste_data(){
+	   var copydata=JSON.parse(localStorage.getItem("copydata"));
+	   var copydata1=JSON.parse(localStorage.getItem("copydata1"));
+	   //获取当前选中的节点
+	   var curdata = $('#tb').treegrid('getSelected');
+	   var node=findById(data,curdata.id);
+	 //判断当前缓存的是part还是ass
+	 if(copydata1){
+		 if(node.type=='ass'){
+			 if(node.children){
+				 node.children.push(copydata1);
+			 }else{
+				 node.children=[copydata1];
+			 }
+		 }else{
+			 if(copydata1.type=="ass"){
+				 $.messager.alert('错误提示','装配体不能粘在零件下！','error');
+		           return false;
+			 }else{
+				 if(node.children){
+					 node.children.push(copydata1);
+				 }else{
+					 node.children=[copydata1];
+				 }
+				
+			 }
+		 }
+	 }else{
+		 if(node.type=='ass'){
+			 for(var i=0;i<copydata.length;i++){
+				 if(node.children){
+			     node.children.push(copydata[i]);
+			   }else{
+			     node.children=[copydata[i]];
+			   }
+			 }
+		 }else{
+			 if(copydata.type=="ass"){
+		     $.messager.alert('错误提示','装配体不能粘在零件下！','error');
+		           return false;
+		   }else{
+			   for(var i=0;i<copydata.length;i++){
+				   if(node.children){
+					   node.children.push(copydata[i]);
+				   }else{
+					   node.children=[copydata[i]];
+				   }
+			   }
+		   }
+		 }
+	 }
+	 
+	//清楚之前的记录
+	  clearIdAndLevel(data);
+	  //重新生成id
+	  resetIdAndLevel(data, data.pid, data.level, 1);
+	  //重新给定url（数据源）
+	  get_data();
+	 
+}
+	 
+ 
+   
+   /*********剪切事件**********/
+   function cut_data(){
+	   $.messager.confirm('提示', '确认剪切?', function(r){
+	     if (r){
+	    	 var check=false;
+	         //存储复制的数据
+	         var copydata=new Array();
+	           //判断当前选中的行是否有子节点
+	           //当前选中的行
+	          var node = $('#tb').treegrid('getSelected');
+	          //复选框选中的个数
+	          var count=$("input[type='checkbox']:checked").length;
+	          var arr;
+	        //获取所有选中的复选框
+	          $.each($('input:checkbox:checked'),function(i){
+	                //获取所有被选中的值(当前行node-id的值)
+	                 var cur_row=$(this).parent().parent().parent().attr('node-id');
+	                //判断当前节点是否有子节点
+	                arr=findById(data,cur_row);
+	                if(arr.children){
+	                  if(arr.children.length>0){
+	                    //有节点
+	                        if((arr.children.length+1)==count){
+	                             //添加到浏览器缓存中
+	                             localStorage.setItem("copydata1",JSON.stringify(arr) );
+	                             check=true;
+	                        } else{
+	                          $.messager.alert('错误提示','不支持当前节点类型的剪切！','error');
+	                          check=false;
+	                          return false;
+	                        }
+	                        return false;
+	                  }else{
+	                  //无节点  取到当前元素添加进
+	                        var cnode=findById(data,cur_row);
+	                        copydata.push(cnode);
+	                        check=true;
+	                  }
+	                }else{
+	                  //无节点  取到当前元素添加进
+	                  var cnode=findById(data,cur_row);
+	                  copydata.push(cnode);
+	                  check=true;
+	                }
+	          });
+	        
+	          //删除所有复选框选中的对象
+	          if(check){
+	             $.each($('input:checkbox:checked'),function(i){
+	                   //获取所有被选中的值(当前行node-id的值)
+	                    var cur_row=$(this).parent().parent().parent().attr('node-id');
+	                    //数据上删除当前节点
+	                    $('#tb').treegrid('remove', cur_row);
+	                    data=$('#tb').treegrid('getData')[0];
+	                 });
+	               localStorage.setItem("copydata",JSON.stringify(copydata) );
+	          }
+	     }
+	   });
+   }
+ 
+  
+ /*********取消事件**********/
+ function cancel_data(){
+	 if (editingId != undefined){
+	        $('#tb').treegrid('cancelEdit', editingId);
+	        editingId = undefined;
+	 }
+ }
+ 
+ /***********闭合当前所有****************/
+ function collapseAll(){
+     $('#tb').treegrid('collapseAll');
+ }
+ 
+ /*************展开当前所有******************/
+ function expandAll(){
+     $('#tb').treegrid('expandAll');
+ }
+ 
+ function exportJson(){
+	 var curentdata=JSON.stringify(data);
+	 $.ajax({
+		    url:"exportJson.do",
+		    type:"post",
+		    async : false,
+		    data: {"data" : curentdata},
+		    success:function(data){
+		      jQuery('<form action="download.do" method="post">' +  // action请求路径及推送方法
+		                '<input type="text" name="path" value="'+data+'"/>' + // 文件路径
+		            '</form>').appendTo('body').submit().remove();
+		    },
+		    error:function(data){
+		      alert("当前数据不支持此类型文件的导出！");
+		    }
+		  }) 
+ }
+ 
+ function importJson(){
+	  $(".import").attr("style","display:block;");
+ }
+ 
+ function importData(root){
+	 data=root;
+	//重新加载
+  get_data();
+ }
+ function hideIframe(){
+	  $(".import").attr("style","display:none");//显示div
+	}
+ function hide(){
+	  $(".import").attr("style","display:none;");//显示div
+	}
+</script>
+</head>
+<body>
+<div id="tab">
+    <button style="margin-right:20px;background-color: #F3F3F3;" id="butGraph" >图</button>
+    <button id="butTable" style="background-color:#E9F1FF;">表格</button>
+  </div>
+	<div style="margin: 20px 0;" class="table_tree" id="table">
+	<div id="tbl_top" style="padding-right:20px;">
+	 <a href="#" class="easyui-linkbutton" onclick="delete_alldata()" style="margin-left:30px;"><img src='./css/icons/edit_remove.png'>删除</a>
+	 <a href="#" class="easyui-linkbutton" onclick="copy_data()"><img src='./css/icons/copy.png' style="width:16px;height:16px;">复制</a>
+	 <a href="#" class="easyui-linkbutton" onclick="paste_data()"><img src='./css/icons/paste.png' style="width:16px;height:16px;">粘贴</a>
+	 <a href="#" class="easyui-linkbutton" onclick="cut_data()"><img src='./css/icons/cut.png'>剪切</a>
+	 <a href="#" class="easyui-linkbutton" onclick="expandAll()" style="margin-left:30px;"><img src='./css/icons/jia.png' style="width:16px;height:16px;">展开</a>
+	 <a href="#" class="easyui-linkbutton" onclick="collapseAll()"><img src='./css/icons/jian.png' style="width:16px;height:16px;">闭合</a>
+   <a href="#" class="easyui-linkbutton" onclick="importJson()" style="float:right;"><img src='./css/icons/Import.png' style="width:16px;height:16px;">导入</a>
+   <a href="#" class="easyui-linkbutton" onclick="exportJson()" style="float:right;"><img src='./css/icons/export.png' style="width:16px;height:16px;">导出</a>
+	
+	</div>
+	<table id="tb" title="Tree_Table" class="easyui-treegrid"
+		style="width: 1500px; height: 594px;"
+		data-options="
+        url: '',
+        method: 'get',
+        lines: true,
+        rownumbers: true,
+        idField: 'id',
+        treeField: 'id',
+        toolbar:'#tbl_top'
+      ">
+		<thead>
+			<tr>
+			  <th data-options="field:'check',width:'30',align:'center',formatter:checkbox " ><input type="checkbox"></th>
+				<th data-options="field:'id',width:150,align:'left',halign:'center'" >节点id</th>
+				<th data-options="field:'value0',width:140,align:'center',halign:'center',editor:'text'" >编号</th>
+				<th data-options="field:'value1',width:160,align:'center',halign:'center',editor:'text'">名称</th>
+				<th data-options="field:'value2',width:170,align:'center',halign:'center',editor:'text'" >原名称</th>
+				<th data-options="field:'value3',width:50,align:'center',halign:'center',editor:'numberbox'" >数量</th>
+				<th data-options="field:'value4',width:80,align:'center',halign:'center',editor:'text'" >活动配置</th>
+				<th data-options="field:'value5',width:80,align:'center',halign:'center',editor:'text'" >图号</th>
+				<th data-options="field:'value6',width:'80',align:'left',halign:'center',editor:'text'" >规格型号</th>
+				<th data-options="field:'value7',width:120,align:'center',halign:'center',editor:'text'" >文档名称</th>
+				<th data-options="field:'value8',width:80,align:'center',halign:'center',editor:'text'" >来源</th>
+				<th data-options="field:'value9',width:80,align:'center',halign:'center',editor:'text'" >备注</th>
+				<th data-options="field:'value10',width:80,align:'center',halign:'center',editor:'text'" >下料长度</th>
+				<th data-options="field:'value11',width:50,align:'right',halign:'center',editor:'text'">底数</th>
+				<th data-options="field:'operation',width:110,align:'center',halign:'center',formatter:show">操作</th>
+			</tr>
+		</thead>
+	</table>
+	</div>
+	
+	<div class="import" style="display:none;">
+    <iframe src="import2.html" width="200" height="140" frameborder="0" scrolling="no" style="border:1px solid black;position:absolute;left:650px;top:300px;z-index:999;">
+    </iframe>
+  </div>
+	
+</body>
+</html>

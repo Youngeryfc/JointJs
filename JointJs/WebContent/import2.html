@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="./css/joint.css" />
+    <script src="./js/jquery-3.3.1.min.js"  type="text/javascript"></script>
+    <script src="./js/jquery.form.js"  type="text/javascript"></script>
+    
+</head>
+<script type="text/javascript">
+var dataType;
+$(function(){
+	
+	//判断当前浏览器类型
+	   var agent=navigator.userAgent;  
+	  //如果是ie
+	   if(agent.indexOf("Trident/4.0")>=0 || agent.indexOf("Trident/5.0")>=0 ||agent.indexOf("Trident/6.0")>=0|| agent.indexOf("Trident/7.0")>=0){  
+	     dataType="text";
+	   }else{  
+	     dataType="json";
+	   }  
+	
+	$("#but").click(function(){
+		if($('.file').val().length>0){
+      window.parent.hideIframe();
+			$("#form").ajaxSubmit({
+	              type:"post",
+	              url:"importJson.do",
+	              dataType:"json",
+ 	              success:function(data){
+	                window.parent.importData(data);
+	              },
+	              error:function(e){
+	                alert("报错了");
+	              }
+	     })
+		 }else{
+		      alert("请选择文件！");
+		 }
+	})
+	
+	//关闭当前页面
+	$("#cancel").click(function(){
+		 window.parent.hide();
+	})
+})
+
+  </script>
+  <style>
+  .but{
+  width:50px;
+  float:right;
+  background-color:green;
+  border:none;
+  border-radius:10px;
+  height:30px;
+  font-size:14px;
+  color:white;
+  margin-right:10px;
+}
+
+input,button,a {
+    outline:0 none !important; blr:expression(this.onFocus=this.blur());
+}
+  </style>
+  
+<body>
+<div style="background-color:white;" class="body">
+<form enctype="multipart/form-data"  id="form">
+请选择需要导入的文件<br/><br/>
+<input type="file" name="file" class="file"/>
+<br/><br/>
+<input type="hidden" name="pid" class="pid"/>
+<input type="button" id="but"  class="but" value="确定" />
+<input type="button" id="cancel"  class="but" value="取消" />
+<input type="hidden" name="fileType" class="fileType" />
+</form>
+</div>
+</body>
+</html>

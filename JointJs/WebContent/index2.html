@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="./css/joint.css" />
+<link rel="stylesheet" type="text/css" href="./css/rappid.css" />
+<link rel="stylesheet" type="text/css" href="./css/orgchart.css" />
+<link rel="stylesheet" type="text/css" href="./css/defined.css" />
+<link rel="stylesheet" type="text/css" href="./css/demo.css">
+<script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="./css/easyui.css">
+<link rel="stylesheet" type="text/css" href="./css/icon.css">
+<script src="./js/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="./js/jquery.easyui.min.js"></script>
+<script src="./js/lodash.min.js" type="text/javascript"></script>
+<script src="./js/backbone-min.js" type="text/javascript"></script>
+<script src="./js/joint.js" type="text/javascript"></script>
+<script src="./js/rappid.js" type="text/javascript"></script>
+<script src="./js/dataSource.js" type="text/javascript"></script>
+<style type="text/css">
+ .joint-dialog.joint-theme-modern .fg {
+	top: 0;
+	display: table;
+	margin: auto;
+	position: absolute;
+}
+.joint-dialog .controls {
+    text-align: center;
+    margin-top: 510px;
+}
+/*设置弹框的样式*/
+.joint-dialog.joint-theme-material .fg {
+	background: white;
+	height:620px;
+}
+
+.joint-inspector.joint-theme-material {
+	color: #55627b;
+	background: white;
+	font-family: lato-light, Arial, sans-serif;
+	height: 570px;
+} 
+.joint-inspector .text-field{
+  padding: 10px;
+}
+.joint-inspector .text-field label,.joint-inspector .select-box-field label{
+  display: inline-block;
+  width:60px;
+  text-align: right;
+}
+.joint-inspector .text-field .input-wrapper{
+  display: inline-block;
+}
+.joint-select-box.joint-theme-material {
+    font-size: 14px;
+    line-height: 1em;
+    font-family: lato-light,Arial,sans-serif;
+    color: #55627b;
+    width: 170px;
+    background-color:white;
+}
+#log_window {
+    background: url(image/loading.gif ) no-repeat center;
+} 
+/* 复选框的边框大小 */
+.joint-select-box.joint-theme-material .select-box-selection {
+    border: 1px solid #5fa9ee;
+    width: 100px;
+}
+.joint-select-box.joint-theme-material .select-box-selection:after{
+    border: 8px solid #5fa9ee;
+}
+#paper{
+  width:auto;
+}
+#data th{
+  background-color:#95B8E7;
+  border:1px;
+}
+</style>
+</head>
+
+<body >
+  <div id="test"></div>
+  <div id="log_window">
+  </div>
+  <div id="tab">
+    <button style="margin-right:20px;" id="butGraph">图</button>
+    <button id="butTable">表格</button>
+  </div>
+	<div id="paper" ondragstart="return false" style="margin:auto"></div>
+
+<!-- 画图部分 -->
+
+
+	<div id="inspector"></div>
+<ul id="myMenu">
+    <li ><img src="./image/add.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="add_ass()">新增（装配体）</a></li>
+    <li ><img src="./image/add.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="add_part()">新增（零件）</a></li>
+    <li><img src="./image/del.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="del()">删除</a></li>
+    <li ><img src="./image/cop.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="copy()">复制</a></li>
+    <li><img src="./image/add.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="paste()">粘贴</a></li>
+    <li><img src="./image/imp.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="imp()">导入(TREEHOUSE)</a></li>
+    <li><img src="./image/imp.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="imp2()">导入(EBOM)</a></li>
+    <li><img src="./image/imp.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="imp22()">导入(EBOM二级)</a></li>
+    <li><img src="./image/imp.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="imp3()">导入(NCBOM)</a></li>
+    <li ><img src="./image/imp.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="exp()">导出(TREEHOUSE)</a></li>
+    <li ><img src="./image/imp.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="exp2()">导出(EBOM)</a></li>
+    <li class="line"><img src="./image/imp.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="exp3()">导出(NCBOM)</a></li>
+    <li><img src="./image/exp.jpg" style="width:20px;20px;margin-right:5px;"><a href="javascript:void(0)" onclick="property()">属性</a></li>
+</ul>
+
+<div class="import">
+  <iframe src="import.html" width="200" height="140" frameborder="0" scrolling="no" style="border:1px solid black;position:relative;left:400px;top:-250px;z-index:999;">
+  </iframe>
+</div>
+<div id="search" data-action="close">
+  <img alt="" src="./image/search.jpg" style="width:25px;height:25px;">
+</div>
+
+<div id="research" style="border:1px solid black;width:550px;height:auto;display:none;background-color:white;font-size:14px;color:black;">
+  <div style="margin-top:10px;margin-bottom:50px;">
+    <div style="float:left;">
+                编号:<input name="bh" class="style1" >
+                名称:<input name="name" class="style1">
+    </div>
+    <div style="float:left">
+      <div style="float:left;" onclick="data_search()"><img alt="" src="./image/search.jpg" style="width:25px;height:25px;margin-right:5px;"></div>
+      <div style="float:left;" onclick="data_return()"><img alt="" src="./image/cancel.png" style="width:25px;height:25px;margin-right:5px; " ></div>
+      <div style="float:right;" onclick="data_cancel()"><img alt="" src="./image/close.png" style="width:25px;height:25px;"></div>
+    </div>
+  </div>
+  <div>
+   <table border="1" id="data" style="width:480px;height:auto;margin:auto;" >
+    <tr>
+      <th style="width:10px;height:30px;"></th>
+      <th style="width:50px;height:30px;">编号</th>
+      <th style="width:40px;height:30px;">文档名称</th>
+    </tr>
+   </table>
+  </div>
+  <br/>
+  <div class="data_button">
+     <button  onclick="data_submit()">确定</button>
+     <button  style="margin-right:10px;" onclick="data_cancel()">取消</button>
+  </div>
+</div>
+
+
+<!-- 鼠标悬浮添加的文本 -->
+<div id="document_name" style="display:none;width:73px;height:auto;font-size:14px;"></div>
+</body>
+
+<script type="text/javascript">
+window.onbeforeunload=function(e){  
+  　　var e = window.event||e; 
+  　　e.returnValue=("确定离开当前页面吗？");
+  }  
+var menu = document.getElementById("myMenu");
+var search_png=document.getElementById("search");
+var block_width = 50;
+var block_height = 50;
+//创建随机数，测试数据
+var root=createTestData(1,1);
+var margin_left=0;             //距离左边的距离
+var pid;
+var data=leftLevel(root);
+var position_x=returnPosition_x();
+
+//页面初始化，清空缓存
+$(function(){
+	  shield();
+    var pd;
+ /*   if(JSON.parse(localStorage.getItem("rester"))){         //页面有返回值值
+	   debugger;
+      data=JSON.parse(localStorage.getItem("resertdata"));     
+      setTimeout(function () { 
+    	  resetGraph(data);
+      }, 10);  
+      pd=true;
+    }else{ */
+      //重新画图
+     /*  if(JSON.parse(localStorage.getItem("data"))){      //去过table页面但并未修改
+        data=JSON.parse(localStorage.getItem("data"));
+        //重新布局画布
+        position_x=localStorage.getItem("position_x");
+        graphSize(position_x);  
+      } */
+/*       drawGraph(data,null); 
+      pd=true;
+    }  */
+   
+    debugger;
+    console.log(JSON.parse(localStorage.getItem("resertdata")));
+    if(JSON.parse(localStorage.getItem("resertdata"))){
+    	data=JSON.parse(localStorage.getItem("resertdata"));     
+        setTimeout(function () { 
+          resetGraph(data);
+        }, 10);  
+        pd=true;
+    }else{
+        drawGraph(data,null); 
+        pd=true;
+    }
+   console.log(data);
+   if(pd){
+	   localStorage.clear();
+	   setTimeout(function () { 
+	    cancel_shield();
+	   }, 10);  
+   }
+})
+
+
+function shield(){
+	$("#test").css({'display':'block'});
+	$("#log_window").css({'display':'block'});
+ return true;
+   
+}
+function cancel_shield(){
+    var s = document.getElementById("test");
+    s.style.display = "none";
+    
+    var l = document.getElementById("log_window");
+    l.style.display = "none";
+}
+
+
+
+//根据返回的position_x设置画布的大小
+var deeplevel=findMaxLevelData(data);
+//返回最深层次
+joint.setTheme('modern');
+ var graph = new joint.dia.Graph();
+ var ElementView = joint.dia.ElementView.extend({
+    pointerdown: function () {
+        this._click = true;
+        joint.dia.ElementView.prototype.pointerdown.apply(this, arguments);
+    },
+    pointermove: function(evt, x, y) {
+        this._click = false;
+        joint.dia.ElementView.prototype.pointermove.apply(this, arguments);
+    },
+    pointerup: function (evt, x, y) {
+        if (this._click) {
+            this.notify('cell:click', evt, x, y); 
+        } else {
+            joint.dia.ElementView.prototype.pointerup.apply(this, arguments);
+        }
+    }
+});
+var LinkView = joint.dia.LinkView.extend({
+    addVertex: function(evt, x, y) {},
+    removeVertex: function(endType) {},
+    pointerdown:function(evt, x, y) {}
+});
+ 
+var paper = new joint.dia.Paper({
+    el: $('#paper'),
+    width: 100,
+    height: 500,
+    gridSize: 1,
+    model: graph,
+    perpendicularLinks: true,
+    restrictTranslate: true ,
+    elementView: ElementView,
+    linkView:LinkView 
+});
+
+// 定义画布的大小
+var width=document.body.clientWidth; 
+var height=document.body.clientHeight;
+if(position_x==0){
+	   margin_left=25;      
+	}
+//uid是标志图标的 唯一id
+var member = function(x,y,width,height,z_index,dataId,pid,background,color,value,graphtype) {
+    var cell = new joint.shapes.org.Member({
+    position: { x: x, y: y },
+    size:{width:width,height:height},
+    dataId:dataId,
+    id:dataId,
+    pid:pid,
+    graphType:graphtype,
+    z:z_index,
+    attrs: {
+        '.card': { fill: background, stroke: color,'stroke-width': 1 ,rx:0, ry:0},   //改变图形形状
+        '.name': {text: '', 'font-size': 11, 'text-decoration': 'none', 'ref-x': 0.5, 'ref-y': 0.4,'x-alignment': 'middle', 'word-spacing': '-1px', 'letter-spacing': 0 ,'overflow':'hidden' },
+        '.name2': { fill: "green", text: '', 'ref-x': 0.75, 'ref-y': 0.5, 'font-family': 'Arial' },
+        '.rank': { fill: "black", text: '', 'ref-x': 0.95, 'ref-y': 0.05, 'font-family': 'Arial'  ,'text-decoration': 'none','font-size': 10 },
+        '.name4': { fill: "green", text: '', 'ref-x': 0.75, 'ref-y': 0.5, 'font-family': 'Arial' },
+        '.name5': { fill: "red", text: '', 'ref-x': 0.95, 'ref-y': 0.7, 'font-family': 'Arial'  },
+        '.name6': { fill: "green", text: '', 'ref-x': 0.75, 'ref-y': 0.5, 'font-family': 'Arial' },
+        '.name7': { fill: "red", text: '', 'ref-x': 0.95, 'ref-y': 0.7, 'font-family': 'Arial'  },
+        '.name8': { fill: "green", text: '', 'ref-x': 0.75, 'ref-y': 0.5, 'font-family': 'Arial' },
+        '.name9': { fill: "red", text: '', 'ref-x': 0.95, 'ref-y': 0.7, 'font-family': 'Arial'  },
+        '.name10': { fill: "green", text: '', 'ref-x': 0.75, 'ref-y': 0.5, 'font-family': 'Arial' },
+        '.btn.edit': { 'ref-dx': -80,'ref-y': 5, 'ref': '.card', event: 'element:edit' },
+        '.btn>rect': { height: 20, width: 45, rx:0, ry:0, fill: 'transparent', 'stroke-width': 1 },    //给EDIT加的边框
+        '.btn.edit>text': { fill: background,'font-size': 12, 'font-weight': 500, stroke: "#000", x: 50, y: 15, 'font-family': 'Sans Serif' }
+    }
+    }).on({
+        'change:name': function(cell, name) {
+        		cell.attr('.name/text', joint.util.breakText(name, { width: 50, height: 35 }, cell.attr('.name')));
+        },
+       'change:name3': function(cell, name3) {
+    	   if(name3>1){
+            cell.attr('.rank/text', joint.util.breakText(name3, { width: 50, height: 35 }, cell.attr('.rank')));
+    	   }else{
+    		   cell.attr('.rank/text', joint.util.breakText('', { width: 50, height: 35 }, cell.attr('.rank')));
+    	   }
+        }
+    }).set({
+        name: value[1],
+        name1:value[0],
+        name2:value[2],
+        name3:value[3],
+        name4:value[4],
+        name5:value[5],
+        name6:value[6],
+        name7:value[7],
+        name8:value[8],
+        name9:value[9],
+        name10:value[10],
+        name11:value[11] 
+    });
+    graph.addCell(cell);
+    return cell;
+};
+
+function link(source, target, breakpoints) {
+    var cell = new joint.dia.Link({
+        source: { id: source.id },
+        target: { id: target.id },      
+        vertices: breakpoints,
+        attrs: {
+            '.connection': {
+                'fill': 'none',
+                'stroke-width': '2',
+                'stroke': '#4b4a67'
+            }
+        }
+
+    });
+    graph.addCell(cell);
+    return cell;
+}
+
+
+/*****************画图**********************/
+/* drawGraph(data,null); */
+function drawGraph(data,graph,p_x,level){
+  var mydate = new Date();
+  //画root节点
+  var a=member(data.self_x+margin_left,data.self_y,block_width, block_height, 2,data.id,data.pid,  data.bg_color,'#2E313E',data.value,data.type);
+  
+  //当前元素的border
+  if(data.border){
+    var border=member(data.border_x+margin_left,data.border_y,data.border_width, data.border_height,  1,'','',  '#FEFEFE','#F53808',value);
+     link(a,border,[{x:(data.self_x+block_width/2+margin_left),y:(data.level*(block_height+block_gap)-block_gap/2)},{x:(data.border_x+data.border_width/2)+margin_left,y:(data.level*(block_height+block_gap)-block_gap/2)}]);
+  }
+  if(graph!=null){
+    link(graph,a,[{x:(p_x+block_width/2+margin_left),y:(level*(block_height+block_gap)-block_gap/2)},{x:(data.self_x+block_width/2+margin_left),y:(level*(block_height+block_gap)-block_gap/2)}]);
+  } 
+  if(data.children){
+    for(var i=0;i<data.children.length;i++){
+      if(data.children[i].children){
+        //将a的x，y坐标带进去
+        drawGraph(data.children[i],a,data.self_x,data.level);
+      }else{
+          var b=member(data.children[i].self_x+margin_left,data.children[i].self_y,block_width,block_height,2, data.children[i].id,data.children[i].pid, data.children[i].bg_color,'#2E313E',data.children[i].value,data.children[i].type);
+          if(data.children[i].border){
+              var border=member(data.border_x+margin_left,data.border_y,data.border_width, data.border_height,  1,'', '', '#FEFEFE','#F53808',value);
+              link(data,border,[{x:(data.self_x+block_width/2+margin_left),y:(data.level*(block_gap+block_height)-block_gap/2)},{x:(data.border_x+data.border_width/2),y:(data.level*(border_height+block_gap)-block_gap/2)}]);
+          }
+          if(!data.border){
+             link(a,b,[{x:(data.self_x+block_width/2+margin_left),y:(data.level*(block_height+block_gap)-block_gap/2)},{x:(data.children[i].self_x+block_width/2+margin_left),y:(data.level*(block_height+block_gap)-block_gap/2)}]);
+          } 
+      } 
+    }
+  }
+  
+  
+  return true;
+}
+
+/*****************鼠标右键事件**********************/
+var currentid;
+var currentpid;
+var currentModel;
+var currentType;
+var value=new Array('','','',1,'','','','','','','','');
+var currentData;
+var clientX;
+paper.on('cell:contextmenu',function(elementView, evt, x, y){ 
+	clientX=evt.pageX;
+	//隐藏搜索框
+	$("#research").css({'display':'none'});
+	currentid=elementView.model.attributes.id;
+	currentpid=elementView.model.attributes.pid;
+	currentModel=elementView.model;
+	currentType=elementView.model.attributes.graphType;
+	pid=currentid;
+	if(currentType=="part"){
+		$("ul li").eq(0).css({"display":"none"});
+	}else{
+		$("ul li").eq(0).css({"display":"block"}); 
+	}
+	//阻止默认的右键事件
+  evt.preventDefault();
+  //新菜单位置跟随鼠标
+  y=y+150;
+  menu.style.left = (evt.pageX+100)+"px";
+  menu.style.top = y+"px";
+  //显示菜单
+  menu.style.visibility = "visible";
+
+});
+
+/*****************新增装配体事件**********************/
+function add_ass(){
+	data=createDataNode(data,currentid,"#9BBACF","ass",value);
+	//右键隐藏
+	menu.style.visibility = "hidden";
+	//清楚之前的记录
+	clearIdAndLevel(data);
+	//重新布局
+	root=leftLevel(data);
+	position_x=returnPosition_x();
+	//重新布局画布
+  graphSize(position_x); 
+	//重新生成id
+	resetIdAndLevel(root, root.pid, root.level, 1);
+	//清楚之前的图形
+	graph.clear();
+	//重新画图
+	drawGraph(data,null);
+	//drawLine(data);
+};
+
+/*****************新增装零件事件**********************/
+function add_part(){
+	  data=createDataNode(data,currentid,"#D7DBDE","part",value);
+	  //右键隐藏
+	  menu.style.visibility = "hidden";
+	  //清楚之前的记录
+	  clearIdAndLevel(data);
+	  //重新布局
+	  root=leftLevel(data);
+	  position_x=returnPosition_x();
+	  //重新布局画布
+	  graphSize(position_x); 
+	  //重新生成id
+	  resetIdAndLevel(root, root.pid, root.level, 1);
+	  //清楚之前的图形
+	  graph.clear();
+	  //重新画图
+	  drawGraph(data,null);
+	};
+
+/*****************删除事件**********************/
+function del(){
+	//返回当前节点的父级节点
+	var parent=findById(data,currentpid);
+	//当前节点
+	var node=findById(data,currentid);
+  //右键隐藏
+	menu.style.visibility = "hidden";
+	if(node.id=="root"){
+	  alert("根节点不允许被删除");
+		return;
+	}
+	clearIdAndLevel(parent);
+  //删除当前节点下的所有子节点
+  if(parent.children.length>1){
+	  for(var i=0;i<parent.children.length;i++){
+		  if(parent.children[i].id==currentid){
+			  parent.children.splice(i,1);
+			  break;
+		  }
+	  }
+  }else{
+	  delete parent.children;
+  }
+  
+  //重新布局
+  data=leftLevel(data);
+  position_x=returnPosition_x();
+  //重新布局画布
+  graphSize(position_x); 
+  //重新生成id
+  resetIdAndLevel(data, data.pid, data.level, 1);
+  //清除之前的图形
+  graph.clear();
+  //重新画图
+  drawGraph(data,null);
+}
+
+function hideIframe(){
+	$(".import").attr("style","display:none");//显示div
+}
+/*****************隐藏导入窗口**********************/
+function hide(){
+  $(".import").attr("style","display:none;");//显示div
+}
+
+var impType;      //导入类型，判断是treehouse还是ncbom
+/*****************导入TREEHOUSE事件**********************/
+function imp(){
+	var mydate1 = new Date();
+	impType="TREEHOUSE";
+	 //右键隐藏
+	menu.style.visibility = "hidden";
+	var left=(currentModel.position().x+750)+"px";
+  var top=(currentModel.position().y-400)+"px";
+	$("iframe").css({'position':'relative','left':clientX,'top':top});
+	$(".import").attr("style","display:block;");//显示div
+}
+//是在当前节点的基础上导入还是基于整个大页面
+function importData(children){
+	var mydate1 = new Date();
+	var children_type="part";
+	for(var i=0;i<children.length;i++){
+		if(children[i].type=="ass"){
+			children_type="ass";
+			break;
+		}
+	}
+	var node=findById(data,currentid)
+	if(node.type=="ass"){
+		node.children=children;
+	}else{
+		if(children_type=="ass"){
+			alert("装配体不能贴在零件下！");
+			cancel_shield();
+			return ;
+		}else{
+			node.children=children;
+		}
+	}
+	resetGraph(data);
+	//关闭遮罩
+  cancel_shield();
+}
+
+function resetGraph(data){
+	  //清楚之前的记录
+	  clearIdAndLevel(data);
+	  //重新生成id
+	  resetIdAndLevel(data, data.pid, data.level, 1);
+	  
+	  data=leftLevel(data);
+	  position_x=returnPosition_x();
+	  //重新布局画布
+	  graphSize(position_x);  
+	  //清除之前的图形
+	  graph.clear();
+	 /*  var mydate2 = new Date();
+	  console.log("画图开始:  "+mydate2.getMinutes()+"分  "+mydate2.getSeconds()+"秒"); */
+	  //重新画图
+	  drawGraph(data,null);
+	/*    var mydate3 = new Date();
+	  console.log("画图结束:  "+mydate3.getMinutes()+"分  "+mydate3.getSeconds()+"秒"); */
+	  
+	  return true;
+}
+
+/*****************导出TREEHOUSE事件**********************/
+function exp(){
+  menu.style.visibility = "hidden";
+  var node=findById(data,currentid);
+  var root;
+  var jsondata=JSON.stringify(node);
+  if(!node.children){
+    root="one";
+  }else{
+    root="others"
+  }
+   $.ajax({
+    url:"exportTh.do",
+    type:"post",
+    async : false,
+    data:"pid="+currentid+"&data="+JSON.stringify(node)+"&root="+root,
+    success:function(data){
+      jQuery('<form action="download.do" method="post">' +  // action请求路径及推送方法
+                '<input type="text" name="path" value="'+data+'"/>' + // 文件路径
+            '</form>').appendTo('body').submit().remove();
+    },
+    error:function(data){
+      alert("当前数据不支持此类型文件的导出！");
+    }
+  }) 
+}
+
+/*****************导入EBOM文件**********************/
+function imp2(){
+	impType="EBOM";
+  //右键隐藏
+  menu.style.visibility = "hidden";
+  var left=(currentModel.position().x+750)+"px";
+  var top=(currentModel.position().y-400)+"px";
+  $("iframe").css({'position':'relative','left':clientX,'top':top});
+  $(".import").attr("style","display:block;");//显示div
+}
+
+
+function imp22(){
+	  impType="EBOM2";
+	  //右键隐藏
+	  menu.style.visibility = "hidden";
+	  var left=(currentModel.position().x+750)+"px";
+	  var top=(currentModel.position().y-400)+"px";
+	  $("iframe").css({'position':'relative','left':clientX,'top':top});
+	  $(".import").attr("style","display:block;");//显示div
+	}
+/*****************导出EBOM文件**********************/
+function exp2(){
+	impType="EBOM";
+	  menu.style.visibility = "hidden";
+	  var node=findById(data,currentid);
+	  //找到当前节点下最深level
+	  var deeplevel=findMaxLevelData(node);
+	  
+	  if(deeplevel.level-node.level>2){
+		  alert("当前节点不适合导出EBOM格式");
+		  return ;
+	  }
+	  var root;
+	  var jsondata=JSON.stringify(node);
+	  if(!node.children){
+	    root="one";
+	  }else{
+	    root="others"
+	  }
+	   $.ajax({
+	    url:"exportEb.do",
+	    type:"post",
+	    async : false,
+	    data:"pid="+currentid+"&data="+JSON.stringify(node)+"&root="+root,
+	    success:function(data){
+	      jQuery('<form action="download.do" method="post">' +  // action请求路径及推送方法
+	                '<input type="text" name="path" value="'+data+'"/>' + // 文件路径
+	            '</form>').appendTo('body').submit().remove();
+	    },
+	    error:function(data){
+	      alert("当前数据不支持此类型文件的导出！");
+	    }
+	  }) 
+}
+
+/*****************导入NCBOM文件**********************/
+function imp3(){
+	impType="NCBOM";
+	//右键隐藏
+	menu.style.visibility = "hidden";
+	var left=(currentModel.position().x+750)+"px";
+	var top=(currentModel.position().y-400)+"px";
+	 $("iframe").css({'position':'relative','left':clientX,'top':top});
+	$(".import").attr("style","display:block;");//显示div
+}
+
+/*****************导出NCBOM文件**********************/
+function exp3(){
+	impType="NCBOM";
+	  menu.style.visibility = "hidden";
+	  var node=findById(data,currentid);
+	  var root;
+	  var jsondata=JSON.stringify(node);
+	  if(!node.children){
+	    root="one";
+	  }else{
+	    root="others"
+	  }
+	   $.ajax({
+	    url:"exportNb.do",
+	    type:"post",
+	    async : false,
+	    data:"pid="+currentid+"&data="+JSON.stringify(node)+"&root="+root,
+	    success:function(data){
+	      jQuery('<form action="download.do" method="post">' +  // action请求路径及推送方法
+	                '<input type="text" name="path" value="'+data+'"/>' + // 文件路径
+	            '</form>').appendTo('body').submit().remove();
+	    },
+	    error:function(data){
+	      alert("当前数据不支持此类型文件的导出！");
+	    }
+	  }) 
+}
+
+/*****************复制属性**********************/
+function copy(){
+	 //右键隐藏
+	  menu.style.visibility = "hidden";
+	//获取当前选中节点
+	var node=findById(data,currentid);
+	localStorage.setItem("node",JSON.stringify(node) );
+}
+
+
+/*****************粘贴事件**********************/
+function paste(){
+	 //右键隐藏
+	menu.style.visibility = "hidden";
+	var node=findById(data,currentid);
+	var cashnode=JSON.parse(localStorage.getItem("node"));
+	//判断当前缓存的是part还是ass
+	if(node.type=="ass"){
+		if(node.children){
+		    if(node.children[0]!=null){
+		      node.children.push(cashnode);
+		    }else{
+		      node.children=cashnode;
+		    }
+		  }else{
+		    node.children=[cashnode];
+		  }
+	}else{
+		if(cashnode.type=="part"){
+			if(node.children&&node.children.length>0){
+			    node.children.push(cashnode);
+			  }else{
+			    node.children=[cashnode];
+			  }
+		}else{
+			alert("装配体不能贴在零件下！");
+		}
+	}
+	
+	//清楚之前的记录
+  clearIdAndLevel(data);
+  //重新生成id
+  resetIdAndLevel(data, data.pid, data.level, 1);
+
+  //重新布局
+  data=leftLevel(data);
+  position_x=returnPosition_x();
+  //重新布局画布
+  graphSize(position_x); 
+  //清楚之前的图形
+  graph.clear();
+  //重新画图
+  drawGraph(data,null);
+}
+
+/*****************属性修改事件(修改弹框)**********************/
+var search_left;
+var search_top;
+function property(){
+	currentData=findById(data,currentModel.attributes.id);
+		 //右键隐藏
+		  menu.style.visibility = "hidden";
+		  joint.setTheme('material');
+		  var inspector ;
+		 if("NCBOM"==impType){
+			  inspector = new joint.ui.Inspector({
+		            cell: currentModel,
+		            live:false,
+		            inputs: {
+		                'name1': {
+		                     type: 'text',
+		                     label: '编号',
+		                     index:1
+		                 },
+		                 'name': {
+		                     type: 'text',
+		                     label: '名称',
+		                     index: 2
+		                 },
+		                 'name2': {
+		                       type: 'text',
+		                       label: '原名称',
+		                       index: 3
+		                   },
+		                 'name3': {
+		                     type: 'text',
+		                     label: '数量',
+		                     index: 4
+		                 },
+		                 'attrs/name4/fill':{
+	                           type:'select-box',
+	                           target: '.joint-dialog .fg',
+	                           label:'倒冲方',
+	                           index:5,
+	                           options:[
+	                                    {content:'不倒冲'},
+	                                    {content:'自动倒冲'},
+	                                    {content:'交互式倒冲'}
+	                                    ]
+	                     },
+		                 'attrs/name5/fill':{
+		                       type:'select-box',
+		                       target: '.joint-dialog .fg',
+		                       label:'控制标',
+		                       index:6,
+		                       options:[
+		                                {content:'控制'},
+		                                {content:'不控制'}
+		                                ]
+		                 },
+		                 'attrs/name6/fill':{
+		                       type:'select-box',
+		                       target: '.joint-dialog .fg',
+		                       label:'子项类',
+		                       index:7,
+		                       options:[
+		                                {content:'普通'},
+		                                {content:'工具'},
+		                                {content:'技术资料'},
+		                                {content:'用户手册'}
+		                                ]
+		                 },
+		                 'attrs/name7/fill':{
+		                       type:'select-box',
+		                       target: '.joint-dialog .fg',
+		                       label:'备料',
+		                       index:8,
+		                       options:[
+		                                {content:'备料'},
+		                                {content:'领料'},
+		                                {content:'传输'}
+		                                ]
+		                 },
+		                 'attrs/name8/fill':{
+	                           type:'select-box',
+	                           target: '.joint-dialog .fg',
+	                           label:'供应方',
+	                           index:9,
+	                           options:[
+	                                    {content:'一般发料'},
+	                                    {content:'定量发料'}
+	                                    ]
+	                   },
+		                 'name9': {
+		                     type: 'text',
+		                     label: '备注',
+		                     index: 10
+		                 },
+		                 'name10': {
+		                     type: 'text',
+		                     label: '下料长度',
+		                     index: 11
+		                 },
+		                 'name11': {
+	                         type: 'text',
+	                         label: '底数',
+	                         index: 12
+	                   } 
+		            } 
+		        }); 
+			}else{ 
+			  inspector = new joint.ui.Inspector({
+		            cell: currentModel,
+		            live:false,
+		            inputs: {
+		                'name1': {
+		                     type: 'text',
+		                     label: '编号',
+		                     index:1
+		                 },
+		                 'name': {
+		                     type: 'text',
+		                     label: '名称',
+		                     index: 2
+		                 },
+		                 'name2': {
+		                       type: 'text',
+		                       label: '原名称',
+		                       index: 3
+		                   },
+		                 'name3': {
+		                     type: 'text',
+		                     label: '数量',
+		                     index: 4
+		                 },
+		                 'name4': {
+		                     type: 'text',
+		                     label: '活动配置',
+		                     index: 5
+		                 },
+		                 'name5': {
+		                     type: 'text',
+		                     label: '图号',
+		                     index: 6
+		                 },
+		                 'name6': {
+		                     type: 'text',
+		                     label: '规格型号',
+		                     index: 7
+		                 },
+		                 'name7': {
+		                     type: 'text',
+		                     label: '文档名称',
+		                     index: 8
+		                 },
+		                 'name8': {
+		                     type: 'text',
+		                     label: '来源',
+		                     index: 9
+		                 },
+		                 'name9': {
+		                     type: 'text',
+		                     label: '备注',
+		                     index: 10
+		                 },
+		                 'name10': {
+		                     type: 'text',
+		                     label: '下料长度',
+		                     index: 11
+		                 },
+		                 'name11': {
+		                     type: 'text',
+		                     label: '底数',
+		                     index: 12
+		                 } 
+		            } 
+		        }); 
+		  }
+		    
+		    var dialog = new joint.ui.Dialog({
+		        type: 'inspector-dialog',
+		        width: 290,
+		        title: 'Edit Member', 
+		        closeButton: false,
+		        content: inspector.render().el,
+		        buttons: [{
+		            content: 'Cancel',
+		            action: 'cancel'
+		        }, {
+		            content: 'Apply',
+		            action: 'apply'
+		        }]
+		        
+		    });
+
+		    dialog.on({
+		        'action:cancel': function() {
+		        	$("#search").css({'display':'none'});
+		            inspector.remove();
+		            dialog.close();
+		        },
+		        'action:apply': function() {
+		            //将当前graph的11个value值存在data中
+		            $("#search").css({'display':'none'});
+		            inspector.updateCell();
+		            getDataByGraph();
+		            inspector.remove();
+		            dialog.close();
+		            //getDataByGraph();
+		        }
+		    });
+		    dialog.open(); 
+    //设置弹框的显示位置
+    var pos=$(".joint-dialog.joint-theme-material .fg");
+    pos.css({'margin':0,'left':clientX+100,'top':currentModel.position().y+100});
+    search_left=clientX+100;
+    search_top=currentModel.position().y+110;
+    $("#search").css({'display':'block','position':'absolute','left':clientX+350,'top':currentModel.position().y+160,'z-index':99999});
+}
+
+
+//将graph的值赋值到data中
+function getDataByGraph(){
+	  var a=new Array(11);
+	  var name4;
+		var name5;
+		var name6;
+		var name7;
+		var name8;
+	  if("NCBOM"==impType){
+		  name4=$('div[data-attribute="attrs/name4/fill"] div[class="select-box-option-content"]').text();
+			name5=$('div[data-attribute="attrs/name5/fill"] div[class="select-box-option-content"]').text();
+			name6=$('div[data-attribute="attrs/name6/fill"] div[class="select-box-option-content"]').text();
+		  name7=$('div[data-attribute="attrs/name7/fill"] div[class="select-box-option-content"]').text();
+			name8=$('div[data-attribute="attrs/name8/fill"] div[class="select-box-option-content"]').text();
+	  }else{
+		  name4=currentModel.attributes.name4;
+		  name5=currentModel.attributes.name4;
+		  name6=currentModel.attributes.name4;
+		  name7=currentModel.attributes.name4;
+		  name8=currentModel.attributes.name4;
+	  } 
+
+	  a[0]=currentModel.attributes.name1;
+	  a[1]=currentModel.attributes.name;
+	  a[2]=currentModel.attributes.name2;
+	  a[3]=currentModel.attributes.name3;
+		a[4]=name4;
+	  a[5]=name5;
+	  a[6]=name6;
+	  a[7]=name7;
+	  a[8]=name8;
+		a[9]=currentModel.attributes.name9;
+		a[10]=currentModel.attributes.name10;
+		a[11]=currentModel.attributes.name11;
+	  currentData.value=a;
+	  //保证和表格一一对应
+	  currentData.value0=a[0];
+	  currentData.value1=a[1];
+	  currentData.value2=a[2];
+	  currentData.value3=a[3];
+	  currentData.value4=a[4];
+	  currentData.value5=a[5];
+	  currentData.value6=a[6];
+	  currentData.value7=a[7];
+	  currentData.value8=a[8];
+	  currentData.value9=a[9];
+	  currentData.value10=a[10];
+	  currentData.value11=a[11];
+}
+
+ //每当鼠标移到x=100,y=100的时候，就重新创建一个小图标样式
+ paper.on('blank:pointerclick',function(elementView, evt, x, y){
+	menu.style.visibility = "hidden";
+});  
+ $('body').click(function(target){
+	 menu.style.visibility = "hidden";
+ })
+
+ //鼠标移上事件
+ paper.on('cell:mouseover',function(elementView, evt, x, y){
+	   var curmodel=elementView.model;
+	   $("#document_name").css({'display':'block','position':'absolute','left':evt.pageX+50,'top':curmodel.position().y+170});
+	   $("#document_name").html(curmodel.attributes.name);
+	}); 
+ 
+ //鼠标移除事件
+ paper.on('cell:mouseout',function(elementView, evt, x, y){
+     var curmodel=elementView.model;
+     $("#document_name").css({'display':'none'});
+  }); 
+ 
+ 
+ /******************************************************搜索框相关事件********************************************************/
+ var historyName; //原名称
+ //隐藏属性菜单，弹出搜索框
+ $("#search").click(function(){
+	 $("#search").css({'display':'none'});
+	 //删除对话框的遮罩层
+	 $("div.bg").remove();
+	 //隐藏对话框
+	 $(".joint-dialog.joint-theme-material .fg").css({'display':'none'});
+	 $("#research").css({'display':'block','position':'absolute','left':search_left,'top':search_top+100});
+	 //弹出搜索框的同时给编号、名称（源名称）赋默认值
+	 $("input[name='bh']").val(currentModel.attributes.name1);
+	 $("input[name='name']").val(currentModel.attributes.name);
+	 historyName=$("input[data-attribute='name']").val();
+ })
+
+ //提交当前选中的
+function data_submit(){
+  $("#research").css({'display':'none'});
+  property();
+  //graph.clear();
+  var vv=$("input[name='radio']:checked").val();
+  $("input[data-attribute='name1']").val(search_data[vv].code);
+  //将当前查询的名称赋值给name，将之前的名称赋值给2
+  $("input[data-attribute='name']").val(search_data[vv].name);
+  $("input[data-attribute='name2']").val(historyName);
+  $("tr td").remove();
+  $("#data tr").remove();
+  var html='<tr><th style="width:10px;height:30px;"></th><th style="width:50px;height:30px;">编号</th><th style="width:40px;height:30px;">文档名称</th></tr>';
+  $("#data").append(html);
+}
+ 
+//搜索框中的取消按钮/关闭图标
+function data_cancel(){
+	 $("#research").css({'display':'none'});
+	 $("#data tr").remove();
+	 var html='<tr><th style="width:10px;height:30px;"></th><th style="width:50px;height:30px;">编号</th><th style="width:40px;height:30px;">文档名称</th></tr>';
+	  $("#data").append(html);
+}
+
+ //返回上一级
+function data_return(){
+	$("#research").css({'display':'none'});
+	property();
+	$("#data tr").remove();
+	var html='<tr><th style="width:10px;height:30px;"></th><th style="width:50px;height:30px;">编号</th><th style="width:40px;height:30px;">文档名称</th></tr>';
+	$("#data").append(html);
+}
+ 
+var search_data;
+//根据当前的值进行搜索
+function data_search(){
+	$("tr td").remove();
+	 var bh=$("input[name='bh']").val();
+	 var name=$("input[name='name']").val();
+	 $.post("search.do",{"bh":bh,"name":name},
+			 function(data){
+		     if(data!=null){
+		    	 search_data=data;
+		    	 var html;
+		    	 for(var i=0;i<data.length;i++){
+		    		 html+="<tr><td><input type='radio' name='radio' value="+(i)+"></td><td height='20px'>"+data[i].code+"</td><td>"+data[i].name+"</td></tr>"
+		    	 }
+		    	 //将数据追加到table中
+		    	 $("#data").append(html);
+		    	 //默认选中第一个单选框
+		    	 $("input[name='radio']").get(0).checked=true;
+		     }
+	 },"json")
+}
+
+function table_search(obj){
+	var objbh=$(obj).parent().parent().find('.bh');
+	var bh=objbh.val();
+	var objname=$(obj).parent().parent().find('.name');
+	var name=objname.val();
+	var objyname=$(obj).parent().parent().find('.yname');
+	 $.post("search.do",{"bh":bh},
+		       function(data){
+		         if(data!=null){
+		           search_data=data;
+		           //默认取第一个值
+		           objname.val(data[0].name);
+		           objyname.val(name);
+		           objbh.val(data[0].code);
+		         }
+		   },"json")
+}
+
+
+
+function graphSize(position_x){
+	  width=parseInt(position_x)+100;
+	  if(deeplevel.level*(block_height+block_gap)>=height){
+	    height=deeplevel.level*(block_height+block_gap)+300;
+	  }
+	   //改变画布的大小
+	   paper.setDimensions(width, height);   
+	}
+	
+/***************************************************事件切换************************************************************/   
+
+  
+  $("#butTable").click(function(){
+	  localStorage.setItem("data",JSON.stringify(data) );
+	  localStorage.setItem("position_x",position_x );
+	  window.location.href="demo.html";
+  })
+  
+</script>
+</html>

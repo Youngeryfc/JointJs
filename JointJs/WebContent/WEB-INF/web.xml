@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <welcome-file-list>
+    <welcome-file>demo5.jsp</welcome-file>
+  </welcome-file-list>
+  <!-- 配置核控制器-->
+ <servlet>
+  <servlet-name>spring</servlet-name>
+  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  <init-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring-mvc.xml</param-value>
+  </init-param>
+  <load-on-startup>1</load-on-startup>
+ </servlet>
+  <servlet-mapping>
+  <servlet-name>spring</servlet-name>
+  <url-pattern>*.do</url-pattern>
+ </servlet-mapping>
+  <!-- 配置springmvc提供的过滤器解决乱码问题 -->
+<filter>
+ <filter-name>encoding</filter-name>
+ <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+  <!--指定编码的参数设置-->
+  <init-param>
+    <param-name>encoding</param-name>
+    <param-value>utf-8</param-value>
+  </init-param>
+</filter>
+<filter-mapping>
+ <filter-name>encoding</filter-name>
+ <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+<!-- 加载log4j的配置文件log4j.properties -->
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>classpath:log4j.properties</param-value>
+    </context-param>
+
+    <!-- 设定刷新日志配置文件的时间间隔，这里设置为10s -->
+    <context-param>
+        <param-name>log4jRefreshInterval</param-name>
+        <param-value>10000</param-value>
+    </context-param>
+
+    <!-- 加载Spring框架中的log4j监听器Log4jConfigListener -->
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+
+    <!-- 为避免项目间冲突，定义唯一的 webAppRootKey -->
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>scheduleProject</param-value>
+    </context-param>
+
+
+ <!-- 开启服务器时自启动spring容器 -->
+ <!-- 1.定义applicationContext.xml文件的位置:如果该文件在WEB-INF目录中可不用该配置-->
+ <context-param>
+  <param-name>contextConfigLocation</param-name>
+  <param-value>classpath:applicationContext.xml</param-value>
+</context-param>
+<!-- 2.使用 ContextLoaderListener监听器启动spring容器  -->
+<listener>
+<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+ </listener>
+</web-app>
